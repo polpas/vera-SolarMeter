@@ -52,7 +52,7 @@ var SolarMeter = (function (api) {
 			var deviceID = api.getCpanelDeviceId();
 			var deviceObj = api.getDeviceObject(deviceID);
 			var dayInterval = [{'value':'10','label':'10 Seconds'},{'value':'30','label':'30 Seconds'},{'value':'60','label':'1 Minute'},{'value':'120','label':'2 Minutes'},{'value':'300','label':'5 Minutes'},{'value':'600','label':'10 Minutes'},{'value':'900','label':'15 Minutes'}];
-			var solarSystem = [{'value':'0','label':'Please select...'},{'value':'1','label':'Enphase Envoy API'},{'value':'2','label':'Enphase Remote API'},{'value':'6','label':'Fronius API V1'},{'value':'4','label':'PV Output'},{'value':'3','label':'Solar Edge'},{'value':'7','label':'Solarman'},{'value':'5','label':'SUNGROW Power'}];
+			var solarSystem = [{'value':'0','label':'Please select...'},{'value':'1','label':'Enphase Envoy API'},{'value':'2','label':'Enphase Remote API'},{'value':'6','label':'Fronius API V1'},{'value':'4','label':'PV Output'},{'value':'3','label':'Solar Edge'},{'value':'7','label':'Solarman'},{'value':'5','label':'SUNGROW Power'},{'value':'8','label':'Solax'}];
 			var yesNo = [{'value':'0','label':'No'},{'value':'1','label':'Yes'}];
 			var logLevel = [{'value':'1','label':'Error'},{'value':'2','label':'Warning'},{'value':'8','label':'Info'},{'value':'11','label':'Debug'}];
 			var fronDev = [{'value':'0','label':'0 = Site'},{'value':'1','label':'1'},{'value':'2','label':'2'},{'value':'3','label':'3'},{'value':'4','label':'4'},{'value':'5','label':'5'},{'value':'6','label':'6'},{'value':'7','label':'7'},{'value':'8','label':'8'},{'value':'9','label':'9'}];
@@ -98,6 +98,10 @@ var SolarMeter = (function (api) {
 				htmlAddPulldown(deviceID, 'Show House Power meter', 'ShowHouseChild', yesNo)+
 				htmlAddPulldown(deviceID, 'Show Grid Power meters', 'ShowGridChild', yesNo)+
 				htmlAddPulldown(deviceID, 'Show Battery Power meters', 'ShowBatteryChild', yesNo)+
+				'</div>'+
+				'<div id="'+DIV_PREFIX+deviceID+'div_system8" style="display: '+((curSystem === '8')?'block':'none')+';" >'+
+				htmlAddInput(deviceID, 'PV Output API Key', 50, 'PV_APIKey')+
+				htmlAddInput(deviceID, 'PV Output System ID', 50, 'PV_SystemID')+
 				'</div>'+
 				htmlAddPulldown(deviceID, 'Log level', 'LogLevel', logLevel)+
 				htmlAddButton(deviceID, 'UpdateSettings')+

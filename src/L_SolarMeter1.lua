@@ -1040,6 +1040,57 @@ function SS_PVOutput_Refresh()
 	end  
 end
 
+-- Solax https://www.solaxcloud.com/user_api/SolaxCloud_User_Monitoring_API_V6.1.pdf
+function SS_Solax_Init()
+	local key = var.Get("SE_APIKey")
+	local serial = var.Get("SE_SystemID")
+	
+	if key == "" or serial == "" then
+		log.Error("Solax, missing configuration details.")
+		return false
+	end
+	InitWeekTotal()
+	PlugIn.ContinousPoll = false
+	return true
+end
+
+function SS_Solax_Refresh()
+	local ts, watts, DayKWH, WeekKWH, MonthKWH, YearKWH, LifeKWH = -1,-1,-1,-1,-1,-1,-1
+	local key = var.Get("SE_APIKey")
+	local serial = var.Get("SE_SystemID")
+	local URL = "https://www.solaxcloud.com/proxyApp/proxy/api/getRealtimeInfo.do?tokenId=%s&sn=%s"
+	URL = URL:format(key,serial)
+	
+	log.Debug("Solax URL " .. URL)
+--	local retCode, dataRaw, HttpCode = HttpsWGet(URL,15)
+	local retCode, dataRaw, HttpCode = luup.inet.wget(URL,15)
+	if (retCode == 0 and HttpCode == 200) then
+		log.Debug("Retrieve HTTP Get Complete...")
+		log.Debug(dataRaw)
+		local retData = json.decode(dataRaw)
+		
+		-- Get standard values
+		retData = retData.overview
+		if retData then
+			watts = GetAsNumber(retData.currentPower.power)
+			DayKWH = GetAsNumber(retData.lastDayData.energy)/1000
+			WeekKWH = GetWeekTotal(DayKWH)
+			MonthKWH = GetAsNumber(retData.lastMonthData.energy)/1000
+			YearKWH = GetAsNumber(retData.lastYearData.energy)/1000
+			LifeKWH = GetAsNumber(retData.lifeTimeData.energy)/1000
+			local timefmt = "(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)"
+			local yyyy,mm,dd,h,m,s = retData.lastUpdateTime:match(timefmt)
+			ts = os.time({day=dd,month=mm,year=yyyy,hour=h,min=m,sec=s})
+			retData = nil 
+			return true, ts, watts, DayKWH, WeekKWH, MonthKWH, YearKWH, LifeKWH
+		else
+			return false, HttpCode, "No data received."
+		end
+	else
+		return false, HttpCode, "HTTP Get failed: RC "..tostring(retCode or -1)..", HTTP Code "..tostring(HttpCode or -1)
+	end  
+end
+
 ------------------------------------------------------------------------------------------
 -- For Solarman  --Octoplayer. Thanks to David H for advice on extracting the URLs
 
@@ -1281,6 +1332,7 @@ function SolarMeter_Init(lul_device)
 	addSolarSystem(5, SS_SunGrow_Init, SS_SunGrow_Refresh)
 	addSolarSystem(6, SS_FroniusAPI_Init, SS_FroniusAPI_Refresh)
  	addSolarSystem(7, SS_Solarman_Init, SS_Solarman_Refresh)
+	addSolarSystem(8, SS_Solax_Init, SS_Solax_Refresh)
   
 	-- Run Init function for specific solar system
 	local solSystem = var.GetNumber("System")
