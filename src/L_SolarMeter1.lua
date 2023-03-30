@@ -1043,9 +1043,9 @@ end
 -- Solax https://www.solaxcloud.com/user_api/SolaxCloud_User_Monitoring_API_V6.1.pdf
 function SS_Solax_Init()
 	local key = var.Get("SE_APIKey")
-	local serial = var.Get("SE_SystemID")
+	local sys = var.Get("SE_SystemID")
 	
-	if key == "" or serial == "" then
+	if key == "" or sys == "" then
 		log.Error("Solax, missing configuration details.")
 		return false
 	end
@@ -1057,13 +1057,13 @@ end
 function SS_Solax_Refresh()
 	local ts, watts, DayKWH, WeekKWH, MonthKWH, YearKWH, LifeKWH = -1,-1,-1,-1,-1,-1,-1
 	local key = var.Get("SE_APIKey")
-	local serial = var.Get("SE_SystemID")
+	local sys = var.Get("SE_SystemID")
 	local URL = "https://www.solaxcloud.com/proxyApp/proxy/api/getRealtimeInfo.do?tokenId=%s&sn=%s"
-	URL = URL:format(key,serial)
+	URL = URL:format(key,sys)
 	
 	log.Debug("Solax URL " .. URL)
 --	local retCode, dataRaw, HttpCode = HttpsWGet(URL,15)
-	local retCode, dataRaw, HttpCode = luup.inet.wget(URL,15)
+	local retCode, dataRaw, HttpCode = HttpsWGet(URL,15)
 	if (retCode == 0 and HttpCode == 200) then
 		log.Debug("Retrieve HTTP Get Complete...")
 		log.Debug(dataRaw)
